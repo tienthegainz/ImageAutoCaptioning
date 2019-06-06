@@ -70,8 +70,28 @@ def analyze_captions(descriptions):
             words = ' '.join(words)
             descriptions[k][i] = words
 
+def caculate_caption_max_len(str_list):
+    max_len = -1
+    for text_list in str_list:
+        for text in text_list:
+            words = text.split()
+            if max_len < len(words): max_len=len(words)
+    return max_len
+
+def save_captions(descriptions, filename):
+    file = open(filename, 'w')
+    for k, v in descriptions.items():
+        img = k + '.jpg'
+        for caption in v:
+            file.write(img)
+            file.write('\t')
+            file.write(caption)
+            file.write('\n')
+
 if __name__ == '__main__':
     desc = read_caption_file('test.txt')
-    print('Before: ', desc)
+    #print('Before: ', desc)
     analyze_captions(desc)
-    print('After: ', desc)
+    #print('After: ', desc)
+    print(caculate_caption_max_len(desc.values()))
+    save_captions(desc, 'clean_text.txt')

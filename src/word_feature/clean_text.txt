@@ -1,0 +1,10 @@
+101654506_8eb26cfb60.jpg	startseq brown and white dog is running through the snow endseq
+101654506_8eb26cfb60.jpg	startseq dog is running in the snow endseq
+101654506_8eb26cfb60.jpg	startseq dog running through snow endseq
+101654506_8eb26cfb60.jpg	startseq white and brown dog is running through snow endseq
+101654506_8eb26cfb60.jpg	startseq the white and brown dog is running the the snow endseq
+1000268201_693b08cb0e.jpg	startseq in is climbing in endseq
+1000268201_693b08cb0e.jpg	startseq girl into wooden endseq
+1000268201_693b08cb0e.jpg	startseq little girl climbing into wooden endseq
+1000268201_693b08cb0e.jpg	startseq little girl climbing the endseq
+1000268201_693b08cb0e.jpg	startseq little girl in into wooden endseq
