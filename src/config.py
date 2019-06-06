@@ -1,0 +1,3 @@
+"""
+    Put configure variable here
+"""
