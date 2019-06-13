@@ -1,7 +1,8 @@
 import sys
-sys.path.append('../')
 import string
-import config as cf
+import src.config as cf
+sys.path.append('../')
+
 
 def read_caption_raw_file(filename):
     """
@@ -15,7 +16,7 @@ def read_caption_raw_file(filename):
         tokens = line.split()
         # print('Token: ', tokens)
         if any(tokens):
-            #print('Token: ', tokens)
+            # print('Token: ', tokens)
             image_id, image_desc = tokens[0], tokens[1:]
             image_id = image_id.split('.')[0]
             image_desc = ' '.join(image_desc)
@@ -24,6 +25,7 @@ def read_caption_raw_file(filename):
                 descriptions[image_id] = list()
             descriptions[image_id].append(clean_text(image_desc))
     return descriptions
+
 
 def read_caption_clean_file(filename):
     """
@@ -37,7 +39,7 @@ def read_caption_clean_file(filename):
         tokens = line.split()
         # print('Token: ', tokens)
         if any(tokens):
-            #print('Token: ', tokens)
+            # print('Token: ', tokens)
             image_id, image_desc = tokens[0], tokens[1:]
             image_id = image_id.split('.')[0]
             image_desc = ' '.join(image_desc)
@@ -46,6 +48,7 @@ def read_caption_clean_file(filename):
                 descriptions[image_id] = list()
             descriptions[image_id].append(image_desc)
     return descriptions
+
 
 def clean_text(text):
     table = str.maketrans('', '', string.punctuation)
@@ -58,10 +61,11 @@ def clean_text(text):
     words = [word for word in words if len(word)>1]
     # remove word with number
     words = [word for word in words if word.isalpha()]
-    #add startseq and endseq
+    # add startseq and endseq
     words.insert(0, 'startseq')
     words.append('endseq')
     return ' '.join(words)
+
 
 def get_unique_word(str_list):
     unique = dict()
@@ -79,13 +83,14 @@ def get_unique_word(str_list):
     unique_list = [k for k in [*unique] if unique[k]>=cf.word_threshold]
     return unique_list
 
+
 def map_w2id(str_list):
     """
         Give you 2 dict of mapping word to idx | idx to word | vocab size
     """
     unique = get_unique_word(str_list)
-    idxtoword = dict() # ID to words
-    wordtoidx = dict() # Words to ID
+    idxtoword = dict()  # ID to words
+    wordtoidx = dict()  # Words to ID
     idx = 1
     for word in unique:
         idxtoword[idx] = word
@@ -93,12 +98,13 @@ def map_w2id(str_list):
         idx += 1
     return idxtoword, wordtoidx, len(unique)+1
 
+
 def analyze_captions(descriptions):
     """
-        We eleminate uncommon words
+        We eliminate uncommon words
     """
     unique = get_unique_word(descriptions.values())
-    #print('Allowed: ', unique)
+    # print('Allowed: ', unique)
     for k,v in descriptions.items():
         for i in range(len(v)):
             words = v[i].split()
@@ -106,13 +112,15 @@ def analyze_captions(descriptions):
             words = ' '.join(words)
             descriptions[k][i] = words
 
-def caculate_caption_max_len(str_list):
+
+def calculate_caption_max_len(str_list):
     max_len = -1
     for text_list in str_list:
         for text in text_list:
             words = text.split()
-            if max_len < len(words): max_len=len(words)
+            if max_len < len(words): max_len = len(words)
     return max_len
+
 
 def save_captions(descriptions, filename):
     file = open(filename, 'w')
@@ -124,8 +132,9 @@ def save_captions(descriptions, filename):
             file.write(caption)
             file.write('\n')
 
+
 if __name__ == '__main__':
     desc = read_caption_raw_file('../Flickr8k_text/Flickr8k.token.txt')
     analyze_captions(desc)
-    print(caculate_caption_max_len(desc.values()))
+    print(calculate_caption_max_len(desc.values()))
     save_captions(desc, '../Flickr8k_text/Flickr8k.cleaned.token.txt')

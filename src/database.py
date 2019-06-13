@@ -9,7 +9,6 @@ import config
 
 class DBManagement():
     __instance = None
-    global data
 
     @staticmethod
     def get_instance():
@@ -20,6 +19,7 @@ class DBManagement():
 
     def __init__(self):
         """ Virtually private constructor. """
+        self.data = None
         if DBManagement.__instance is not None:
             print('DB class is a singleton!')
         else:
@@ -42,4 +42,7 @@ class DBManagement():
         self.data = vector_dictionary
         f.write(pickle.dumps(self.data))
         f.close()
+
+    def get_image_data(self):
+        return self.data
 

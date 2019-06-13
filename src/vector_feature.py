@@ -49,8 +49,11 @@ def dump_data():
 
 
 if __name__ == '__main__':
+    '''
     get_file_path()
     get_vector_feature()
     dump_data()
-
+    '''
+    db = DBManagement()
+    print(len(db.data))
 

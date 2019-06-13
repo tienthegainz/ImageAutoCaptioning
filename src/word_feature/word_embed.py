@@ -1,13 +1,14 @@
 import sys
-sys.path.append('../')
 import config as cf
-from utils import get_unique_word, read_caption_clean_file, map_w2id
+from src.word_feature.utils import get_unique_word, read_caption_clean_file, map_w2id
+sys.path.append('../')
+
 
 def load_glove(path):
     """
         Give you the dict of word and its coefficent
     """
-    f =open(path, encoding='utf-8')
+    f = open(path, encoding='utf-8')
     print("Loading the /{}/ vector".format(path.split('/')[-1]))
     embeddings_index = {}
     for line in f:
@@ -17,6 +18,7 @@ def load_glove(path):
         embeddings_index[word] = coefs
     f.close()
     return embeddings_index
+
 
 def make_word_matrix(str_list):
     # FIXME
@@ -30,7 +32,6 @@ def make_word_matrix(str_list):
         if embedding_vector is not None:
             # Words not found in the embedding index will be all zeros
             embedding_matrix[i] = embedding_vector
-    ### Find what to return ###
+    # Find what to return #
     return
 
-if __name__ == '__main__':
