@@ -1,0 +1,6 @@
+Flicker8k_Dataset/
+Flickr8k_text/
+*.zip
+*.kpl
+.idea/
+__pycache__/
