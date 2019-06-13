@@ -1,7 +1,7 @@
 Flicker8k_Dataset/
 Flickr8k_text/
 *.zip
-*.kpl
+*.pkl
 .idea/
 __pycache__/
 database/
