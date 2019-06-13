@@ -4,3 +4,4 @@ Flickr8k_text/
 *.kpl
 .idea/
 __pycache__/
+database/
