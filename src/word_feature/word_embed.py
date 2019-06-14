@@ -1,6 +1,7 @@
 import sys
 import config as cf
-from src.word_feature.utils import get_unique_word, read_caption_clean_file, map_w2id
+from word_feature.utils import get_unique_word, read_caption_clean_file, map_w2id
+import numpy as np
 sys.path.append('../')
 
 
@@ -20,12 +21,13 @@ def load_glove(path):
     return embeddings_index
 
 
-def make_word_matrix(str_list):
+def make_word_matrix(str_list, glove_path = 'database/glove.6B.200d.txt'):
     # FIXME
     """
         Give you word customized matrix
     """
     idxtoword, wordtoidx, vocab_size = map_w2id(str_list)
+    embeddings_index = load_glove(glove_path)
     embedding_matrix = np.zeros((vocab_size, cf.embedding_dim))
     for word, i in wordtoidx.items():
         embedding_vector = embeddings_index.get(word)
@@ -33,5 +35,4 @@ def make_word_matrix(str_list):
             # Words not found in the embedding index will be all zeros
             embedding_matrix[i] = embedding_vector
     # Find what to return #
-    return
-
+    return embedding_matrix

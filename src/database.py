@@ -38,7 +38,7 @@ class DBManagement():
         f.close()
 
     def save_image_data(self, vector_dictionary):
-        f = open(config.image_feature_file, "wb+")
+        f = open('database/image_vector.pkl', "wb+")
         self.data = vector_dictionary
         f.write(pickle.dumps(self.data))
         f.close()

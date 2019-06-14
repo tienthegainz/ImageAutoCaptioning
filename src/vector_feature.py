@@ -1,5 +1,6 @@
 """
     Extract vector feature and call database class to save
+    Can you fix the def to make a databse vector feature out of all images
 """
 
 from keras.applications.inception_v3 import InceptionV3
@@ -7,6 +8,7 @@ from keras.applications.inception_v3 import preprocess_input
 from keras.preprocessing import image
 from keras.models import Model
 from os.path import join
+from os import listdir
 import numpy as np
 from database import DBManagement
 
@@ -17,9 +19,14 @@ processed_img = dict()
 
 def get_file_path():
     """ find the paths to all images in the traing set """
-    path = 'dataset/Flickr8k_text/Flickr_8k.trainImages.txt'
-    image_folder = 'dataset/Flickr8k_Dataset/Flicker8k_Dataset/'
-    file = open(path, 'r')
+    path = 'Flickr8k_text/Flickr_8k.trainImages.txt'
+    image_folder = 'Flicker8k_Dataset/'
+    """
+        I process all image instead of only training.
+        But I havent train on colab yet.
+    """
+    #file = open(path, 'r')
+    file = listdir(image_folder)
     for line in file:
         abs_path = join(image_folder, line[0:-1])
         image_paths.append(abs_path)
@@ -49,11 +56,10 @@ def dump_data():
 
 
 if __name__ == '__main__':
-    '''
+
     get_file_path()
     get_vector_feature()
     dump_data()
-    '''
-    db = DBManagement()
-    print(len(db.data))
 
+    #db = DBManagement()
+    #print(len(db.data))

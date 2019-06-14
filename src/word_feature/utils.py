@@ -1,6 +1,6 @@
 import sys
 import string
-import src.config as cf
+import config as cf
 sys.path.append('../')
 
 
