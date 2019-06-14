@@ -21,6 +21,7 @@ class DBManagement():
         self.data = None
         if DBManagement.__instance is not None:
             print('DB class is a singleton!')
+            self.get_database('database/image_vector.pkl')
         else:
             DBManagement.__instance = self
             self.get_database('database/image_vector.pkl')
@@ -51,7 +52,8 @@ class DBManagement():
             data_path: path to train_list, test_list, val_list
         """
         path_data = dict()
-        file = open(path, 'r')
+        file = open(data_path, 'r')
         for line in file:
+            line = line[0:-1]
             path_data[line] = self.data[line]
         return path_data

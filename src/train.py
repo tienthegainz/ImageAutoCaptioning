@@ -41,7 +41,7 @@ class DataGenerator(Sequence):
             """Call test image vector"""
             self.imgs = self.database.get_image_data_from_list('Flickr8k_text/Flickr_8k.testImages.txt')
         #### Test purpose ####
-        #self.imgs = self.database.get_image_data()
+        # self.imgs = self.database.get_image_data()
 
     def __len__(self):
         return len(self.imgs)//cf.batch_size
@@ -56,7 +56,7 @@ class DataGenerator(Sequence):
         for k, v in img_dict.items():
             desc_list = self.descriptions[k.split('.')[0]]
             ### Debug ###
-            #print("Length of feature vector: {} of {}\n".format(len(v), k))
+            # print("Length of feature vector: {} of {}\n".format(len(v), k))
             ##############
             for desc in desc_list:
                 seq = [self.wordtoidx[word] for word in desc.split(' ')]
@@ -73,6 +73,7 @@ class DataGenerator(Sequence):
                     y.append(out_seq)
 
         return [[np.array(X1), np.array(X2)], np.array(y)]
+
 
 def build_concat(max_length, vocab_size, str_list):
     # Image input
@@ -96,6 +97,7 @@ def build_concat(max_length, vocab_size, str_list):
 
     return model
 
+
 if __name__ == '__main__':
     train_gen = DataGenerator()
     val_gen = DataGenerator(mode = 'val')
@@ -104,7 +106,7 @@ if __name__ == '__main__':
     print(model.summary())
     # compile
     opt = Adam(lr=0.001, beta_1=0.9, beta_2=0.999, decay=1e-6)
-    model.compile(loss='categorical_crossentropy', optimizer=opt, , metrics=['accuracy', 'top_k_categorical_accuracy'])
+    model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy', 'top_k_categorical_accuracy'])
     checkpointer = ModelCheckpoint(filepath='history/train.{epoch:02d}-{val_loss:.2f}.hdf5', verbose=1, save_best_only=True)
     csv_logger = CSVLogger('history/train.log')
     reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.3, patience=5, min_lr=0.001)
@@ -113,11 +115,11 @@ if __name__ == '__main__':
     history = model.fit_generator(generator=train_gen,
                         validation_data=val_gen,
                         callbacks=[csv_logger],
-                        epochs=5)
+                        epochs=50)
     """Plot training history"""
     # Plot training & validation accuracy values
     plt.plot(history.history['acc'])
-    #plt.plot(history.history['val_acc'])
+    # plt.plot(history.history['val_acc'])
     plt.title('Model accuracy')
     plt.ylabel('Accuracy')
     plt.xlabel('Epoch')
@@ -126,7 +128,7 @@ if __name__ == '__main__':
 
     # Plot training & validation loss values
     plt.plot(history.history['loss'])
-    #plt.plot(history.history['val_loss'])
+    # plt.plot(history.history['val_loss'])
     plt.title('Model loss')
     plt.ylabel('Loss')
     plt.xlabel('Epoch')
