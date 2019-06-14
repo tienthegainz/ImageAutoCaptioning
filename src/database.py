@@ -4,7 +4,6 @@
 """
 
 import pickle
-import config
 
 
 class DBManagement():
@@ -24,7 +23,7 @@ class DBManagement():
             print('DB class is a singleton!')
         else:
             DBManagement.__instance = self
-            self.get_database(config.image_feature_file)
+            self.get_database('database/image_vector.pkl')
 
     def get_database(self, file):
         try:
@@ -33,7 +32,7 @@ class DBManagement():
             return
 
     def save_image(self):
-        f = open(config.image_feature_file, "wb+")
+        f = open(database/image_vector.pkl, "wb+")
         f.write(pickle.dumps(self.data))
         f.close()
 

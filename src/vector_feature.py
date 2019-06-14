@@ -25,10 +25,10 @@ def get_file_path():
         I process all image instead of only training.
         But I havent train on colab yet.
     """
-    #file = open(path, 'r')
+    # file = open(path, 'r')
     file = listdir(image_folder)
     for line in file:
-        abs_path = join(image_folder, line[0:-1])
+        abs_path = join(image_folder, line)
         image_paths.append(abs_path)
 
 

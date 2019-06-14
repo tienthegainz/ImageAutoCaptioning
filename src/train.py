@@ -44,7 +44,7 @@ class DataGenerator(Sequence):
         #self.imgs = self.database.get_image_data()
 
     def __len__(self):
-        return (len(self.imgs)//cf.batch_size)
+        return len(self.imgs)//cf.batch_size
 
     def __getitem__(self, idx):
         X1, X2, y = list(), list(), list()
