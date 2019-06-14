@@ -46,3 +46,9 @@ class DBManagement():
     def get_image_data(self):
         return self.data
 
+    def get_image_data_from_list(self, data_path):
+        # FIXME
+        """
+            data_path: path to train_list, test_list, val_list
+        """
+        return
