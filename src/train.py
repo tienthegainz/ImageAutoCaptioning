@@ -33,12 +33,15 @@ class DataGenerator(Sequence):
         self.mode = mode # choose data generator mode
         if self.mode == 'train':
             """Call train image vector"""
+            self.imgs = self.database.get_image_data_from_list('Flickr8k_text/Flickr_8k.trainImages.txt')
         elif self.mode == 'val':
             """Call val image vector"""
+            self.imgs = self.database.get_image_data_from_list('Flickr8k_text/Flickr_8k.devImages.txt')
         if self.mode == 'test':
             """Call test image vector"""
+            self.imgs = self.database.get_image_data_from_list('Flickr8k_text/Flickr_8k.testImages.txt')
         #### Test purpose ####
-        self.imgs = self.database.get_image_data()
+        #self.imgs = self.database.get_image_data()
 
     def __len__(self):
         return (len(self.imgs)//cf.batch_size)
@@ -95,21 +98,20 @@ def build_concat(max_length, vocab_size, str_list):
 
 if __name__ == '__main__':
     train_gen = DataGenerator()
+    val_gen = DataGenerator(mode = 'val')
 
     model = build_concat(train_gen.max_len, train_gen.vocab_size, train_gen.descriptions.values())
     print(model.summary())
     # compile
     opt = Adam(lr=0.001, beta_1=0.9, beta_2=0.999, decay=1e-6)
-    model.compile(loss='categorical_crossentropy', optimizer=opt)
-    #checkpointer = ModelCheckpoint(filepath='history/train.{epoch:02d}-{val_loss:.2f}.hdf5', verbose=1, save_best_only=True)
+    model.compile(loss='categorical_crossentropy', optimizer=opt, , metrics=['accuracy', 'top_k_categorical_accuracy'])
+    checkpointer = ModelCheckpoint(filepath='history/train.{epoch:02d}-{val_loss:.2f}.hdf5', verbose=1, save_best_only=True)
     csv_logger = CSVLogger('history/train.log')
-    #reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.3, patience=5, min_lr=0.001)
+    reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.3, patience=5, min_lr=0.001)
     # Train
     """Fit models by generator"""
     history = model.fit_generator(generator=train_gen,
-                        #validation_data=val_gen,
-                        #steps_per_epoch=STEP_SIZE_TRAIN,
-                        #validation_steps=STEP_SIZE_VALID,
+                        validation_data=val_gen,
                         callbacks=[csv_logger],
                         epochs=5)
     """Plot training history"""

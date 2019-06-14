@@ -51,4 +51,8 @@ class DBManagement():
         """
             data_path: path to train_list, test_list, val_list
         """
-        return
+        path_data = dict()
+        file = open(path, 'r')
+        for line in file:
+            path_data[line] = self.data[line]
+        return path_data
