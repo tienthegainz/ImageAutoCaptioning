@@ -5,6 +5,7 @@ import numpy as np
 from database import DBManagement
 import config as cf
 from word_feature import utils, word_embed
+import matplotlib.pyplot as plt
 from keras.preprocessing.sequence import pad_sequences
 from keras.utils import to_categorical
 from keras.utils import Sequence
@@ -52,7 +53,7 @@ class DataGenerator(Sequence):
         img_dict = dict((k, v) for (k, v) in self.imgs.items()
                         if k in list(self.imgs.keys())[idx * cf.batch_size:(idx + 1) * cf.batch_size])
 
-        print('\n{}.Batch size: {}\n'.format(idx,len(img_dict)))
+        # print('\n{}.Batch size: {}\n'.format(idx,len(img_dict)))
         for k, v in img_dict.items():
             desc_list = self.descriptions[k.split('.')[0]]
             ### Debug ###
@@ -109,12 +110,12 @@ if __name__ == '__main__':
     model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy', 'top_k_categorical_accuracy'])
     checkpointer = ModelCheckpoint(filepath='history/train.{epoch:02d}-{val_loss:.2f}.hdf5', verbose=1, save_best_only=True)
     csv_logger = CSVLogger('history/train.log')
-    reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.3, patience=5, min_lr=0.001)
+    reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.3, patience=10, min_lr=0.001)
     # Train
     """Fit models by generator"""
     history = model.fit_generator(generator=train_gen,
                         validation_data=val_gen,
-                        callbacks=[csv_logger],
+                        callbacks=[csv_logger, checkpointer, reduce_lr],
                         epochs=50)
     """Plot training history"""
     # Plot training & validation accuracy values
