@@ -1,8 +1,8 @@
 import sys
+sys.path.append('../')
 import config as cf
 from word_feature.utils import get_unique_word, read_caption_clean_file, map_w2id
 import numpy as np
-sys.path.append('../')
 
 
 def load_glove(path):

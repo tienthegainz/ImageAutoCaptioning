@@ -1,7 +1,7 @@
 import sys
+sys.path.append('../')
 import string
 import config as cf
-sys.path.append('../')
 
 
 def read_caption_raw_file(filename):
@@ -134,7 +134,7 @@ def save_captions(descriptions, filename):
 
 
 if __name__ == '__main__':
-    desc = read_caption_raw_file('../Flickr8k_text/Flickr8k.token.txt')
+    desc = read_caption_raw_file('../Flickr8k_text/Flickr8k.lemma.token.txt')
     analyze_captions(desc)
     print(calculate_caption_max_len(desc.values()))
-    save_captions(desc, '../Flickr8k_text/Flickr8k.cleaned.token.txt')
+    save_captions(desc, '../Flickr8k_text/Flickr8k.cleaned.lemma.token.txt')

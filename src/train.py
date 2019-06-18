@@ -16,8 +16,9 @@ from keras.callbacks import LearningRateScheduler, ReduceLROnPlateau,\
 from keras.layers.merge import add
 from keras.models import Model
 from keras import Input, layers
-from keras import optimizers
 from keras.optimizers import Adam, RMSprop, SGD
+from keras import regularizers
+from keras.models import load_model
 
 
 class DataGenerator(Sequence):
@@ -25,7 +26,7 @@ class DataGenerator(Sequence):
     def __init__(self, mode = 'train'):
         self.database = DBManagement()
         # Get caption
-        self.descriptions = utils.read_caption_clean_file('Flickr8k_text/Flickr8k.cleaned.token.txt')
+        self.descriptions = utils.read_caption_clean_file('Flickr8k_text/Flickr8k.cleaned.lemma.token.txt')
         self.idxtoword, self.wordtoidx, self.vocab_size = utils.map_w2id(self.descriptions.values())
         self.max_len = utils.calculate_caption_max_len(self.descriptions.values())
 
@@ -90,7 +91,8 @@ def build_concat(max_length, vocab_size, str_list):
     # Concatenate
     decoder1 = add([fe2, se3])
     decoder2 = Dense(256, activation='relu')(decoder1)
-    outputs = Dense(vocab_size, activation='softmax')(decoder2)
+    outputs = Dense(vocab_size, activation='softmax',
+                    kernel_regularizer=regularizers.l2(0.01))(decoder2)
     model = Model(inputs=[inputs1, inputs2], outputs=outputs)
     # Only after concate, tensor become layer
     model.layers[2].set_weights([word_embed.make_word_matrix(str_list)])
@@ -103,12 +105,14 @@ if __name__ == '__main__':
     train_gen = DataGenerator()
     val_gen = DataGenerator(mode = 'val')
 
-    model = build_concat(train_gen.max_len, train_gen.vocab_size, train_gen.descriptions.values())
+    # build or load model
+    #model = build_concat(train_gen.max_len, train_gen.vocab_size, train_gen.descriptions.values())
+    model = load_model('history/train_lemma.19-3.58.hdf5')
     print(model.summary())
     # compile
-    opt = Adam(lr=0.001, beta_1=0.9, beta_2=0.999, decay=1e-6)
-    model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy', 'top_k_categorical_accuracy'])
-    checkpointer = ModelCheckpoint(filepath='history/train.{epoch:02d}-{val_loss:.2f}.hdf5', verbose=1, save_best_only=True)
+    opt = Adam(lr=0.002, beta_1=0.9, beta_2=0.999, decay=1e-6)
+    model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
+    checkpointer = ModelCheckpoint(filepath='history/train_lemma.{epoch:02d}-{val_loss:.2f}.hdf5', verbose=1, save_best_only=True)
     csv_logger = CSVLogger('history/train.log')
     reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.3, patience=10, min_lr=0.001)
     # Train
@@ -116,7 +120,7 @@ if __name__ == '__main__':
     history = model.fit_generator(generator=train_gen,
                         validation_data=val_gen,
                         callbacks=[csv_logger, checkpointer, reduce_lr],
-                        epochs=50)
+                        epochs=200)
     """Plot training history"""
     # Plot training & validation accuracy values
     plt.plot(history.history['acc'])
@@ -125,7 +129,7 @@ if __name__ == '__main__':
     plt.ylabel('Accuracy')
     plt.xlabel('Epoch')
     plt.legend(['Train', 'Test'], loc='upper left')
-    plt.savefig('history/accuracy.png')
+    plt.savefig('history/accuracy_lemma.png')
 
     # Plot training & validation loss values
     plt.plot(history.history['loss'])
@@ -134,4 +138,4 @@ if __name__ == '__main__':
     plt.ylabel('Loss')
     plt.xlabel('Epoch')
     plt.legend(['Train', 'Test'], loc='upper left')
-    plt.savefig('history/loss.png')
+    plt.savefig('history/loss_lemma.png')
