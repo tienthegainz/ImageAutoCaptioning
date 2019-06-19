@@ -19,6 +19,7 @@ from keras import Input, layers
 from keras.optimizers import Adam, RMSprop, SGD
 from keras import regularizers
 from keras.models import load_model
+from keras.initializers import glorot_normal, he_normal
 
 
 class DataGenerator(Sequence):
@@ -91,9 +92,10 @@ def build_concat(max_length, vocab_size, str_list):
     se3 = LSTM(256)(se2)
     # Concatenate
     decoder1 = add([fe2, se3])
-    decoder2 = Dense(256, activation='relu')(decoder1)
+    decoder2 = Dense(256, activation='relu', kernel_initializer=glorot_normal)(decoder1)
     outputs = Dense(vocab_size, activation='softmax',
-                    kernel_regularizer=regularizers.l2(0.02))(decoder2)
+                    kernel_regularizer=regularizers.l2(0.02),
+                    kernel_initializer=he_normal)(decoder2)
     model = Model(inputs=[inputs1, inputs2], outputs=outputs)
     # Only after concate, tensor become layer
     model.layers[2].set_weights([word_embed.make_word_matrix(str_list)])
@@ -111,9 +113,9 @@ if __name__ == '__main__':
     model = load_model('history/train_lemma.64-3.38.hdf5')
     print(model.summary())
     # compile
-    # opt = Adam(lr=0.001, beta_1=0.9, beta_2=0.999, decay=1e-6)
+    opt = Adam(lr=0.001, beta_1=0.9, beta_2=0.999, decay=1e-6)
     # opt = SGD(lr=0.1, momentum=0.8, decay=0.0005, nesterov=True)
-    opt = RMSprop(lr=0.002, rho=0.9, epsilon=None, decay=0.0)
+    # opt = RMSprop(lr=0.002, rho=0.9, epsilon=None, decay=0.0)
     model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
     checkpointer = ModelCheckpoint(filepath='history/train_lemma_test.{epoch:02d}-{val_loss:.2f}.hdf5', verbose=1, save_best_only=True)
     csv_logger = CSVLogger('history/train_test.log')
@@ -123,7 +125,7 @@ if __name__ == '__main__':
     history = model.fit_generator(generator=train_gen,
                         validation_data=val_gen,
                         callbacks=[csv_logger, checkpointer, reduce_lr],
-                        epochs=20)
+                        epochs=100)
     """Plot training history"""
     # Plot training & validation accuracy values
     plt.plot(history.history['acc'])
