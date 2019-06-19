@@ -10,6 +10,7 @@ import flask
 import io
 import config as cf
 from word_feature import utils
+from googletrans import Translator
 
 
 # initialize our Flask application and the Keras model
@@ -65,6 +66,7 @@ def predict():
     # FIXME: Need front end and handle file not path
     data = {"success": False}
     error = None
+    translator = Translator()
 
     # ensure an image was properly uploaded to our endpoint
     if flask.request.method == "POST":
@@ -76,7 +78,9 @@ def predict():
             feature = vectorize_img(file)
             cap = gen_caption(feature)
             data['success'] = True
-            data['caption'] = cap
+            result = translator.translate(cap, src='en', dest='vi')
+            data['vi'] = result.text
+            data['en'] = cap
 
     # return the data dictionary as a JSON response
     return flask.jsonify(data)
@@ -87,7 +91,7 @@ if __name__ == "__main__":
     load_sever_model()
     app.run(debug = False, threaded = False)
     #################### Test #########################################
-    #feature = vectorize_img('Flicker8k_Dataset/667626_18933d713e.jpg')
-    #caption = gen_caption(feature)
-    #print(caption)
+    #translator = Translator()
+    #result = translator.translate('A tall man', src='en', dest='vi')
+    #print(result.text)
     ####################################################################
