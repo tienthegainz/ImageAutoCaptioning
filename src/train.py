@@ -87,12 +87,13 @@ def build_concat(max_length, vocab_size, str_list):
     se1 = Embedding(vocab_size, cf.embedding_dim, mask_zero=True)(inputs2)
 
     se2 = Dropout(0.5)(se1)
+    # Remember to change
     se3 = LSTM(256)(se2)
     # Concatenate
     decoder1 = add([fe2, se3])
     decoder2 = Dense(256, activation='relu')(decoder1)
     outputs = Dense(vocab_size, activation='softmax',
-                    kernel_regularizer=regularizers.l2(0.01))(decoder2)
+                    kernel_regularizer=regularizers.l2(0.02))(decoder2)
     model = Model(inputs=[inputs1, inputs2], outputs=outputs)
     # Only after concate, tensor become layer
     model.layers[2].set_weights([word_embed.make_word_matrix(str_list)])
@@ -106,21 +107,23 @@ if __name__ == '__main__':
     val_gen = DataGenerator(mode = 'val')
 
     # build or load model
-    #model = build_concat(train_gen.max_len, train_gen.vocab_size, train_gen.descriptions.values())
-    model = load_model('history/train_lemma.19-3.58.hdf5')
+    # model = build_concat(train_gen.max_len, train_gen.vocab_size, train_gen.descriptions.values())
+    model = load_model('history/train_lemma.64-3.38.hdf5')
     print(model.summary())
     # compile
-    opt = Adam(lr=0.002, beta_1=0.9, beta_2=0.999, decay=1e-6)
+    # opt = Adam(lr=0.001, beta_1=0.9, beta_2=0.999, decay=1e-6)
+    # opt = SGD(lr=0.1, momentum=0.8, decay=0.0005, nesterov=True)
+    opt = RMSprop(lr=0.002, rho=0.9, epsilon=None, decay=0.0)
     model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
-    checkpointer = ModelCheckpoint(filepath='history/train_lemma.{epoch:02d}-{val_loss:.2f}.hdf5', verbose=1, save_best_only=True)
-    csv_logger = CSVLogger('history/train.log')
+    checkpointer = ModelCheckpoint(filepath='history/train_lemma_test.{epoch:02d}-{val_loss:.2f}.hdf5', verbose=1, save_best_only=True)
+    csv_logger = CSVLogger('history/train_test.log')
     reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.3, patience=10, min_lr=0.001)
     # Train
     """Fit models by generator"""
     history = model.fit_generator(generator=train_gen,
                         validation_data=val_gen,
                         callbacks=[csv_logger, checkpointer, reduce_lr],
-                        epochs=200)
+                        epochs=20)
     """Plot training history"""
     # Plot training & validation accuracy values
     plt.plot(history.history['acc'])
@@ -129,7 +132,7 @@ if __name__ == '__main__':
     plt.ylabel('Accuracy')
     plt.xlabel('Epoch')
     plt.legend(['Train', 'Test'], loc='upper left')
-    plt.savefig('history/accuracy_lemma.png')
+    plt.savefig('history/accuracy_lemma_test.png')
 
     # Plot training & validation loss values
     plt.plot(history.history['loss'])
@@ -138,4 +141,4 @@ if __name__ == '__main__':
     plt.ylabel('Loss')
     plt.xlabel('Epoch')
     plt.legend(['Train', 'Test'], loc='upper left')
-    plt.savefig('history/loss_lemma.png')
+    plt.savefig('history/loss_lemma_test.png')

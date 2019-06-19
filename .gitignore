@@ -5,3 +5,4 @@ Flickr8k_text/
 .idea/
 __pycache__/
 database/
+*.hdf5
