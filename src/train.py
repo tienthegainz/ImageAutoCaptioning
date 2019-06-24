@@ -19,7 +19,7 @@ from keras import Input, layers
 from keras.optimizers import Adam, RMSprop, SGD
 from keras import regularizers
 from keras.models import load_model
-from keras.initializers import glorot_normal, he_normal
+from keras.initializers import glorot_uniform, he_uniform
 
 
 class DataGenerator(Sequence):
@@ -82,20 +82,19 @@ def build_concat(max_length, vocab_size, str_list):
     # Image input
     inputs1 = Input(shape=(cf.vector_len, ))
     fe1 = Dropout(0.5)(inputs1)
-    fe2 = Dense(256, activation='relu')(fe1)
+    fe2 = Dense(512, activation='relu')(fe1)
     # Text
     inputs2 = Input(shape=(max_length,))
     se1 = Embedding(vocab_size, cf.embedding_dim, mask_zero=True)(inputs2)
 
     se2 = Dropout(0.5)(se1)
     # Remember to change
-    se3 = LSTM(256)(se2)
+    se3 = LSTM(512)(se2)
     # Concatenate
     decoder1 = add([fe2, se3])
-    decoder2 = Dense(256, activation='relu', kernel_initializer=glorot_normal)(decoder1)
+    decoder2 = Dense(512, activation='relu')(decoder1)
     outputs = Dense(vocab_size, activation='softmax',
-                    kernel_regularizer=regularizers.l2(0.02),
-                    kernel_initializer=he_normal)(decoder2)
+                    kernel_regularizer=regularizers.l2(0.02))(decoder2)
     model = Model(inputs=[inputs1, inputs2], outputs=outputs)
     # Only after concate, tensor become layer
     model.layers[2].set_weights([word_embed.make_word_matrix(str_list)])
@@ -109,8 +108,8 @@ if __name__ == '__main__':
     val_gen = DataGenerator(mode = 'val')
 
     # build or load model
-    # model = build_concat(train_gen.max_len, train_gen.vocab_size, train_gen.descriptions.values())
-    model = load_model('history/train_lemma.64-3.38.hdf5')
+    model = build_concat(train_gen.max_len, train_gen.vocab_size, train_gen.descriptions.values())
+    # model = load_model('history/train_lemma.64-3.38.hdf5')
     print(model.summary())
     # compile
     opt = Adam(lr=0.001, beta_1=0.9, beta_2=0.999, decay=1e-6)

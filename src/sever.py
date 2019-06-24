@@ -14,7 +14,10 @@ from googletrans import Translator
 
 
 # initialize our Flask application and the Keras model
-app = flask.Flask(__name__)
+app = flask.Flask(__name__, static_url_path="", static_folder="demo")
+ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
+app.config['JSON_AS_ASCII'] = False
+
 caption_model = None
 vector_model = None
 descriptions = utils.read_caption_clean_file('Flickr8k_text/Flickr8k.cleaned.lemma.token.txt')
@@ -30,6 +33,10 @@ def load_sever_model():
 
     model = InceptionV3(weights='imagenet')
     vector_model = Model(model.input, model.layers[-2].output)
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def gen_caption(feature):
     start = wordtoidx['startseq']
@@ -60,6 +67,9 @@ def vectorize_img(file):
     feature = np.reshape(feature, cf.vector_len)
     return feature
 
+@app.route('/')
+def index():
+    return flask.render_template('index.html', has_result=False)
 
 @app.route("/predict", methods=["POST"])
 def predict():
@@ -84,6 +94,33 @@ def predict():
 
     # return the data dictionary as a JSON response
     return flask.jsonify(data)
+
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    data = dict()
+    #translator = Translator()
+    if flask.request.method == 'POST':
+        # check if the post request has the file part
+        if 'file' not in flask.request.files:
+            flash('No file part')
+            return redirect(flask.request.url)
+        filepath = flask.request.files['file']
+        # if user does not select file, browser also
+        # submit a empty part without filename
+        if filepath.filename == '':
+            flash('No selected file')
+            return redirect(flask.request.url)
+        if filepath and allowed_file(filepath.filename):
+            filename = filepath.filename
+            file = 'demo/'+filename
+            feature = vectorize_img(file)
+            cap = gen_caption(feature)
+            data['src'] = filename
+            #result = translator.translate(cap, src='en', dest='vi')
+            #data['vi'] = result.text
+            data['Caption'] = cap
+            # return flask.jsonify(data)
+            return flask.render_template('result.html', result=data)
 
 if __name__ == "__main__":
     print(("* Loading Keras model and Flask starting server..."
