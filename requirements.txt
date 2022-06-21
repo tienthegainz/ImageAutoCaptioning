@@ -1,5 +1,5 @@
 matplotlib==2.2.2
 googletrans==2.4.0
-numpy==1.14.3
+numpy==1.22.0
 Flask==1.0.2
 Keras==2.2.4
